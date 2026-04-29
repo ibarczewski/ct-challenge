@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import type { Car } from '@/lib/store';
 import { MENU, type MenuItem } from '@/lib/menu';
@@ -27,6 +27,7 @@ export default function PassengerPage() {
   const [car, setCar] = useState<Car | null>(null);
   const [joining, setJoining] = useState(false);
   const [error, setError] = useState('');
+  const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
 
   // Poll car state once joined
   useEffect(() => {
@@ -69,7 +70,7 @@ export default function PassengerPage() {
     setJoining(false);
   };
 
-  const handleAddItem = async (item: MenuItem) => {
+  const handleAddItem = useCallback(async (item: MenuItem) => {
     if (phase !== 'ordering') return;
     const res = await fetch(`/api/car/${code}`, {
       method: 'POST',
@@ -83,8 +84,20 @@ export default function PassengerPage() {
     if (res.ok) {
       const data: Car = await res.json();
       setCar(data);
+      setAddedIds((prev) => {
+        const next = new Set(prev);
+        next.add(item.id);
+        return next;
+      });
+      setTimeout(() => {
+        setAddedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(item.id);
+          return next;
+        });
+      }, 800);
     }
-  };
+  }, [phase, code, passengerName]);
 
   const myItems =
     car?.passengers.find((p) => p.name === passengerName)?.items ?? [];
@@ -180,18 +193,25 @@ export default function PassengerPage() {
                 {category}
               </h2>
               <div className="space-y-2">
-                {items.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleAddItem(item)}
-                    className="w-full flex items-center justify-between bg-gray-800 hover:bg-gray-700 active:bg-yellow-400 active:text-black rounded-lg px-4 py-3 text-left transition-colors"
-                  >
-                    <span className="text-white font-medium">{item.name}</span>
-                    <span className="text-yellow-400 font-bold ml-4 shrink-0">
-                      ${item.price.toFixed(2)}
-                    </span>
-                  </button>
-                ))}
+                {items.map((item) => {
+                  const added = addedIds.has(item.id);
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleAddItem(item)}
+                      className={`w-full flex items-center justify-between rounded-lg px-4 py-3 text-left transition-colors ${
+                        added
+                          ? 'bg-yellow-400 text-black'
+                          : 'bg-gray-800 hover:bg-gray-700 active:bg-yellow-400 active:text-black'
+                      }`}
+                    >
+                      <span className="font-medium">{item.name}</span>
+                      <span className={`font-bold ml-4 shrink-0 ${added ? 'text-black' : 'text-yellow-400'}`}>
+                        {added ? '✓' : `$${item.price.toFixed(2)}`}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           );

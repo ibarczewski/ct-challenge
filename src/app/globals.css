@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+@keyframes flash-in {
+  0%   { background-color: #facc15; color: #000; }
+  100% { background-color: transparent; color: inherit; }
+}
+
+.flash-new {
+  animation: flash-in 1s ease-out;
+}

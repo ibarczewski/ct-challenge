@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import type { Car } from '@/lib/store';
 
@@ -18,12 +18,19 @@ const STATUS_COLORS: Record<string, string> = {
   ready: 'bg-blue-500 text-white',
 };
 
+// Stable key for each item so we can detect new arrivals
+function itemKey(passengerName: string, index: number) {
+  return `${passengerName}:${index}`;
+}
+
 export default function KitchenPage() {
   const { code } = useParams<{ code: string }>();
   const [car, setCar] = useState<Car | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [finishing, setFinishing] = useState(false);
+  const [flashKeys, setFlashKeys] = useState<Set<string>>(new Set());
+  const seenKeys = useRef<Set<string>>(new Set());
 
   const handleFinishOrder = async () => {
     setFinishing(true);
@@ -48,6 +55,35 @@ export default function KitchenPage() {
           return;
         }
         const data: Car = await res.json();
+
+        // Find items we haven't seen before
+        const newKeys: string[] = [];
+        data.passengers.forEach((p) => {
+          p.items.forEach((_, i) => {
+            const key = itemKey(p.name, i);
+            if (!seenKeys.current.has(key)) {
+              seenKeys.current.add(key);
+              newKeys.push(key);
+            }
+          });
+        });
+
+        if (newKeys.length > 0) {
+          setFlashKeys((prev) => {
+            const next = new Set(prev);
+            newKeys.forEach((k) => next.add(k));
+            return next;
+          });
+          // Clear flash after animation completes
+          setTimeout(() => {
+            setFlashKeys((prev) => {
+              const next = new Set(prev);
+              newKeys.forEach((k) => next.delete(k));
+              return next;
+            });
+          }, 1000);
+        }
+
         setCar(data);
         setLastUpdated(new Date());
       } catch {
@@ -125,12 +161,20 @@ export default function KitchenPage() {
                 <p className="text-gray-600 text-sm italic">No items yet…</p>
               ) : (
                 <ul className="space-y-1">
-                  {passenger.items.map((item, i) => (
-                    <li key={i} className="flex justify-between text-white text-sm">
-                      <span>{item.name}</span>
-                      <span className="text-gray-400">${item.price.toFixed(2)}</span>
-                    </li>
-                  ))}
+                  {passenger.items.map((item, i) => {
+                    const key = itemKey(passenger.name, i);
+                    return (
+                      <li
+                        key={i}
+                        className={`flex justify-between text-sm rounded px-1 ${
+                          flashKeys.has(key) ? 'flash-new' : ''
+                        }`}
+                      >
+                        <span className="text-white">{item.name}</span>
+                        <span className="text-gray-400">${item.price.toFixed(2)}</span>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>
