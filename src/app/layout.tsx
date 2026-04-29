@@ -5,7 +5,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Shotgun — JCS Group Ordering',
+  title: 'Pile-In — JCS Group Ordering',
   description: "Parallel drive-thru ordering for Jimmy's Chicken Shack",
 };
 

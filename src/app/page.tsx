@@ -22,7 +22,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-8">
       <div className="max-w-sm w-full text-center">
-        <h1 className="text-5xl font-black text-white mb-2 tracking-tight">SHOTGUN</h1>
+        <h1 className="text-5xl font-black text-white mb-2 tracking-tight">PILE-IN</h1>
         <p className="text-yellow-400 text-sm uppercase tracking-widest mb-2">
           Jimmy's Chicken Shack
         </p>

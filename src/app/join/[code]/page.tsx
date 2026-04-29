@@ -93,7 +93,7 @@ export default function PassengerPage() {
   if (phase === 'join') {
     return (
       <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-6 max-w-sm mx-auto">
-        <h1 className="text-3xl font-black text-white mb-1">SHOTGUN</h1>
+        <h1 className="text-3xl font-black text-white mb-1">PILE-IN</h1>
         <p className="text-yellow-400 text-sm mb-8">Jimmy's Chicken Shack · Car {code}</p>
         <input
           type="text"
@@ -158,7 +158,7 @@ export default function PassengerPage() {
       <div className="sticky top-0 bg-gray-950 border-b border-gray-800 px-4 py-3 z-10">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-white font-black text-lg">SHOTGUN</h1>
+            <h1 className="text-white font-black text-lg">PILE-IN</h1>
             <p className="text-gray-500 text-xs">Car {code} · {passengerName}</p>
           </div>
           <div className="text-right">

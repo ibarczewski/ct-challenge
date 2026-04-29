@@ -109,7 +109,7 @@ export default function DriverPage() {
   if (phase === 'idle') {
     return (
       <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-6 max-w-sm mx-auto text-center">
-        <h1 className="text-4xl font-black text-white mb-2">SHOTGUN</h1>
+        <h1 className="text-4xl font-black text-white mb-2">PILE-IN</h1>
         <p className="text-yellow-400 mb-2">Jimmy's Chicken Shack</p>
         <p className="text-gray-500 text-sm mb-10">
           Start a group order. Share the code with your crew.
@@ -170,7 +170,7 @@ export default function DriverPage() {
       <div className="sticky top-0 bg-gray-950 border-b border-gray-800 px-4 py-3 z-10">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-white font-black">SHOTGUN</h1>
+            <h1 className="text-white font-black">PILE-IN</h1>
             <p className="text-gray-500 text-xs">Jimmy's Chicken Shack</p>
           </div>
           <div className="text-right">
