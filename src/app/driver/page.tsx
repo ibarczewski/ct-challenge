@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import type { Car } from '@/lib/store';
 import { MENU, type MenuItem } from '@/lib/menu';
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? '';
 
 type Phase = 'idle' | 'active' | 'confirmed';
 
@@ -182,12 +185,18 @@ export default function DriverPage() {
 
       <div className="px-4 pt-6">
         {/* Share instructions */}
-        <div className="bg-gray-800 rounded-lg p-4 mb-6 text-center">
-          <p className="text-gray-400 text-sm">Tell your crew to go to</p>
-          <p className="text-white font-mono text-lg font-bold">/join/{car?.code}</p>
-          <p className="text-gray-500 text-xs mt-1">
-            or share the car code: <span className="text-yellow-400 font-bold">{car?.code}</span>
-          </p>
+        <div className="bg-gray-800 rounded-lg p-4 mb-6 flex flex-col items-center gap-3">
+          <QRCodeSVG
+            value={`${BASE_URL}/join/${car?.code}`}
+            size={160}
+            bgColor="#1f2937"
+            fgColor="#ffffff"
+            className="rounded"
+          />
+          <div className="text-center">
+            <p className="text-gray-400 text-sm">Scan to join · or enter code</p>
+            <p className="text-yellow-400 font-black text-2xl tracking-widest font-mono">{car?.code}</p>
+          </div>
         </div>
 
         {/* Passenger orders */}
