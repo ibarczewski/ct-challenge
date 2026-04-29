@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shotgun — Three Views Overview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0f172a;
+    color: #f1f5f9;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding: 24px;
+  }
+  h1 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; margin-bottom: 6px; }
+  h2 { font-size: 22px; font-weight: 900; color: #f1f5f9; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+
+  .views-grid {
+    display: grid;
+    grid-template-columns: 300px 300px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .view-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #64748b;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  /* ── PHONE SHELL ── */
+  .phone {
+    background: #1e293b;
+    border-radius: 24px;
+    border: 2px solid #334155;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .phone-notch {
+    background: #0f172a;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .phone-notch::after {
+    content: '';
+    width: 60px;
+    height: 12px;
+    background: #1e293b;
+    border-radius: 6px;
+  }
+  .phone-screen {
+    background: #0f172a;
+    min-height: 540px;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 13px;
+  }
+
+  /* ── KITCHEN SHELL ── */
+  .desktop {
+    background: #1e293b;
+    border-radius: 12px;
+    border: 2px solid #334155;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .desktop-bar {
+    background: #0f172a;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 6px;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-red { background: #ef4444; }
+  .dot-yellow { background: #eab308; }
+  .dot-green { background: #22c55e; }
+  .desktop-screen {
+    background: #0f172a;
+    min-height: 540px;
+    padding: 20px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+  }
+
+  /* ── PASSENGER VIEW INTERNALS ── */
+  .p-header {
+    background: #0f172a;
+    border-bottom: 1px solid #1e293b;
+    padding: 10px 14px;
+    position: sticky;
+    top: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .p-brand { font-weight: 900; font-size: 14px; color: #f1f5f9; }
+  .p-sub { font-size: 10px; color: #64748b; }
+  .p-cart-count { color: #facc15; font-weight: 700; font-size: 12px; }
+
+  .p-section-label {
+    padding: 10px 14px 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #475569;
+  }
+  .p-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 14px;
+    border-bottom: 1px solid #1e293b;
+    cursor: pointer;
+  }
+  .p-item:hover { background: #1e293b; }
+  .p-item-name { color: #e2e8f0; font-size: 13px; }
+  .p-item-price { color: #facc15; font-weight: 700; font-size: 12px; }
+
+  .p-cart-bar {
+    background: #1e293b;
+    border-top: 1px solid #334155;
+    padding: 10px 14px;
+    position: sticky;
+    bottom: 0;
+  }
+  .p-cart-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .p-cart-item { display: flex; justify-content: space-between; font-size: 11px; }
+  .p-cart-item span:first-child { color: #cbd5e1; }
+  .p-cart-item span:last-child { color: #94a3b8; }
+
+  /* ── DRIVER VIEW INTERNALS ── */
+  .d-header {
+    background: #0f172a;
+    border-bottom: 1px solid #1e293b;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .d-brand { font-weight: 900; font-size: 14px; }
+  .d-code {
+    font-size: 26px;
+    font-weight: 900;
+    color: #facc15;
+    letter-spacing: 0.12em;
+    font-family: 'Courier New', monospace;
+  }
+  .d-code-label { font-size: 9px; color: #64748b; text-align: right; }
+
+  .d-share-box {
+    margin: 12px 14px;
+    background: #1e293b;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+  }
+  .d-share-label { font-size: 10px; color: #64748b; }
+  .d-share-url { font-size: 12px; color: #f1f5f9; font-family: monospace; margin-top: 2px; }
+
+  .d-passenger {
+    margin: 0 14px 8px;
+    background: #1e293b;
+    border-radius: 8px;
+    padding: 10px;
+  }
+  .d-p-name { color: #facc15; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+  .d-p-item { display: flex; justify-content: space-between; font-size: 11px; }
+  .d-p-item span:first-child { color: #94a3b8; }
+  .d-p-item span:last-child { color: #64748b; }
+  .d-p-still { color: #475569; font-size: 10px; font-style: italic; }
+
+  .d-total { display: flex; justify-content: space-between; padding: 0 14px; margin-top: 8px; margin-bottom: 12px; }
+  .d-total span:first-child { color: #64748b; font-size: 12px; }
+  .d-total span:last-child { color: #f1f5f9; font-weight: 700; font-size: 12px; }
+
+  .d-pay-btn {
+    margin: 0 14px 14px;
+    background: #22c55e;
+    color: #000;
+    font-weight: 900;
+    font-size: 14px;
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .d-pay-label { font-size: 10px; color: #166534; font-weight: 400; margin-top: 2px; }
+
+  /* ── KITCHEN VIEW INTERNALS ── */
+  .k-header {
+    border-bottom: 1px solid #1e293b;
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .k-store { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: #475569; margin-bottom: 4px; }
+  .k-order { font-size: 28px; font-weight: 900; color: #f1f5f9; letter-spacing: 0.04em; }
+  .k-status {
+    display: inline-block;
+    background: #eab308;
+    color: #000;
+    font-weight: 900;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 6px 14px;
+    border-radius: 4px;
+  }
+  .k-status.preparing { background: #22c55e; }
+  .k-updated { font-size: 9px; color: #334155; margin-top: 4px; text-align: right; }
+
+  .k-passenger {
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .k-p-name {
+    color: #facc15;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .k-p-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .k-p-item span:first-child { color: #e2e8f0; }
+  .k-p-item span:last-child { color: #475569; }
+
+  .k-total {
+    border-top: 1px solid #1e293b;
+    padding-top: 10px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .k-total span:first-child { font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .k-total span:last-child { font-weight: 900; font-size: 18px; color: #f1f5f9; }
+
+  .k-pulse { font-size: 9px; color: #334155; text-align: center; margin-top: 12px; }
+
+  .annotation {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+  .annotation strong { color: #94a3b8; }
+</style>
+</head>
+<body>
+
+<h1>Shotgun · JCS Late-Night Drive-Thru</h1>
+<h2>Three View Mockups</h2>
+<p class="subtitle">Layout and visual direction for passenger, driver, and kitchen views. React to what you see — nothing is built yet.</p>
+
+<div class="views-grid">
+
+  <!-- PASSENGER -->
+  <div>
+    <div class="view-label">Passenger View · mobile</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="p-header">
+          <div>
+            <div class="p-brand">SHOTGUN</div>
+            <div class="p-sub">Car 4729 · Sam</div>
+          </div>
+          <div class="p-cart-count">2 items · $17.98</div>
+        </div>
+
+        <div class="p-section-label">Tenders</div>
+        <div class="p-item">
+          <span class="p-item-name">3-Piece Tender Combo</span>
+          <span class="p-item-price">$9.49</span>
+        </div>
+        <div class="p-item" style="background:#1e2a3a;">
+          <span class="p-item-name">Spicy Tender Basket</span>
+          <span class="p-item-price">$8.99</span>
+        </div>
+
+        <div class="p-section-label">Sandwiches</div>
+        <div class="p-item">
+          <span class="p-item-name">Classic Crispy Sandwich</span>
+          <span class="p-item-price">$8.49</span>
+        </div>
+        <div class="p-item">
+          <span class="p-item-name">Nashville Hot Sandwich</span>
+          <span class="p-item-price">$9.49</span>
+        </div>
+        <div class="p-item">
+          <span class="p-item-name">Honey Butter Sandwich</span>
+          <span class="p-item-price">$8.99</span>
+        </div>
+
+        <div class="p-section-label">Sides</div>
+        <div class="p-item">
+          <span class="p-item-name">Mac & Cheese</span>
+          <span class="p-item-price">$3.49</span>
+        </div>
+        <div class="p-item">
+          <span class="p-item-name">Seasoned Fries</span>
+          <span class="p-item-price">$2.99</span>
+        </div>
+
+        <div class="p-cart-bar">
+          <div class="p-cart-label">Your order</div>
+          <div class="p-cart-item"><span>3-Piece Tender Combo</span><span>$9.49</span></div>
+          <div class="p-cart-item"><span>Mac & Cheese</span><span>$3.49</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="annotation">
+      <strong>Tap any item to add it.</strong> Your cart builds at the bottom. Category sections scroll vertically. Name + total pinned in header.
+    </div>
+  </div>
+
+  <!-- DRIVER -->
+  <div>
+    <div class="view-label">Driver View · mobile</div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="d-header">
+          <div>
+            <div class="p-brand">SHOTGUN</div>
+            <div class="p-sub">Jimmy's Chicken Shack</div>
+          </div>
+          <div>
+            <div class="d-code">4729</div>
+            <div class="d-code-label">Share this code</div>
+          </div>
+        </div>
+
+        <div class="d-share-box">
+          <div class="d-share-label">Tell your crew to go to</div>
+          <div class="d-share-url">/join/4729</div>
+        </div>
+
+        <div class="d-passenger">
+          <div class="d-p-name">Sam <span style="color:#475569;font-weight:400;font-size:9px;">(2 items)</span></div>
+          <div class="d-p-item"><span>3-Piece Tender Combo</span><span>$9.49</span></div>
+          <div class="d-p-item"><span>Mac & Cheese</span><span>$3.49</span></div>
+        </div>
+
+        <div class="d-passenger">
+          <div class="d-p-name">Jordan <span style="color:#475569;font-weight:400;font-size:9px;">(1 item)</span></div>
+          <div class="d-p-item"><span>Nashville Hot Sandwich</span><span>$9.49</span></div>
+        </div>
+
+        <div class="d-passenger">
+          <div class="d-p-name">Alex <span style="color:#475569;font-weight:400;font-size:9px;">(0 items)</span></div>
+          <div class="d-p-still">Still deciding…</div>
+        </div>
+
+        <div class="d-total">
+          <span>Running total</span>
+          <span>$22.47</span>
+        </div>
+
+        <div class="d-pay-btn">
+          Lock & Pay · $22.47
+          <div class="d-pay-label">Locks the order and notifies the kitchen</div>
+        </div>
+      </div>
+    </div>
+    <div class="annotation">
+      <strong>Code is the hero</strong> — big and yellow up top. Each passenger card updates live. Green "Lock & Pay" is the CTA, pinned to bottom.
+    </div>
+  </div>
+
+  <!-- KITCHEN -->
+  <div>
+    <div class="view-label">Kitchen View · desktop</div>
+    <div class="desktop">
+      <div class="desktop-bar">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+      </div>
+      <div class="desktop-screen">
+        <div class="k-header">
+          <div>
+            <div class="k-store">Jimmy's Chicken Shack</div>
+            <div class="k-order">ORDER #4729</div>
+          </div>
+          <div>
+            <div class="k-status">BUILDING</div>
+            <div class="k-updated">Updated 11:48:32 PM</div>
+          </div>
+        </div>
+
+        <div class="k-passenger">
+          <div class="k-p-name">Sam</div>
+          <div class="k-p-item"><span>3-Piece Tender Combo</span><span>$9.49</span></div>
+          <div class="k-p-item"><span>Mac & Cheese</span><span>$3.49</span></div>
+        </div>
+
+        <div class="k-passenger">
+          <div class="k-p-name">Jordan</div>
+          <div class="k-p-item"><span>Nashville Hot Sandwich</span><span>$9.49</span></div>
+        </div>
+
+        <div class="k-passenger">
+          <div class="k-p-name">Alex</div>
+          <div style="color:#475569;font-size:11px;font-style:italic;">No items yet…</div>
+        </div>
+
+        <div class="k-total">
+          <span>Total</span>
+          <span>$22.47</span>
+        </div>
+
+        <div class="k-pulse">Live · polling every 1.5s</div>
+      </div>
+    </div>
+    <div class="annotation">
+      <strong>Monospace font</strong> feels like a real KDS (kitchen display system). Order # big and bold. Status badge flips yellow → green when driver pays. Each passenger gets their own section.
+    </div>
+  </div>
+
+</div>
+
+<script>
+// inject the helper from the server
+</script>
+
+</body>
+</html>
