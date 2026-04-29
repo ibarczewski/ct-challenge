@@ -159,12 +159,12 @@ export default function KitchenPage() {
         </div>
       )}
 
-      {/* Ready — proceed to window */}
+      {/* Ready — deliver to window */}
       {car.status === 'ready' && (
         <div className="mt-8 bg-blue-950 border border-blue-700 rounded-lg p-6 text-center">
           <p className="text-blue-300 text-xs uppercase tracking-widest mb-1">Order Ready</p>
-          <p className="text-white font-black text-2xl">Proceed to Window 2</p>
-          <p className="text-blue-400 text-sm mt-1">to pick up your order</p>
+          <p className="text-white font-black text-2xl">Deliver to Window 2</p>
+          <p className="text-blue-400 text-sm mt-1">hand off to the customer</p>
         </div>
       )}
 
