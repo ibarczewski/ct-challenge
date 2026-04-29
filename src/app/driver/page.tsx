@@ -31,6 +31,7 @@ export default function DriverPage() {
   const [driverName, setDriverName] = useState('');
   const [driverJoining, setDriverJoining] = useState(false); // name input visible
   const [driverJoined, setDriverJoined] = useState(false);   // joined, menu visible
+  const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
 
   // Poll when active or confirmed (need to catch the ready state)
   useEffect(() => {
@@ -83,6 +84,18 @@ export default function DriverPage() {
     if (res.ok) {
       const data: Car = await res.json();
       setCar(data);
+      setAddedIds((prev) => {
+        const next = new Set(prev);
+        next.add(item.id);
+        return next;
+      });
+      setTimeout(() => {
+        setAddedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(item.id);
+          return next;
+        });
+      }, 800);
     }
   };
 
@@ -286,16 +299,25 @@ export default function DriverPage() {
                 <div key={category} className="mb-4">
                   <p className="text-gray-600 text-xs uppercase tracking-widest mb-2">{category}</p>
                   <div className="space-y-2">
-                    {items.map((item) => (
-                      <button
-                        key={item.id}
-                        onClick={() => handleDriverAddItem(item)}
-                        className="w-full flex items-center justify-between bg-gray-800 hover:bg-gray-700 active:bg-yellow-400 active:text-black rounded-lg px-4 py-3 text-left transition-colors"
-                      >
-                        <span className="text-white font-medium text-sm">{item.name}</span>
-                        <span className="text-yellow-400 font-bold text-sm ml-4 shrink-0">${item.price.toFixed(2)}</span>
-                      </button>
-                    ))}
+                    {items.map((item) => {
+                      const added = addedIds.has(item.id);
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => handleDriverAddItem(item)}
+                          className={`w-full flex items-center justify-between rounded-lg px-4 py-3 text-left transition-colors ${
+                            added
+                              ? 'bg-yellow-400 text-black'
+                              : 'bg-gray-800 hover:bg-gray-700 active:bg-yellow-400 active:text-black'
+                          }`}
+                        >
+                          <span className="font-medium text-sm">{item.name}</span>
+                          <span className={`font-bold text-sm ml-4 shrink-0 ${added ? 'text-black' : 'text-yellow-400'}`}>
+                            {added ? '✓' : `$${item.price.toFixed(2)}`}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               );
