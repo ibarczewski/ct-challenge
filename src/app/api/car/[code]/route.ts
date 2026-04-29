@@ -18,12 +18,12 @@ export async function GET(_req: NextRequest, context: RouteContext) {
   const { code } = await context.params;
 
   if (code === 'new') {
-    const newCode = generateCode();
-    const car = createCar(newCode);
+    const newCode = await generateCode();
+    const car = await createCar(newCode);
     return NextResponse.json(car);
   }
 
-  const car = getCar(code);
+  const car = await getCar(code);
   if (!car) {
     return NextResponse.json({ error: 'Car not found' }, { status: 404 });
   }
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest, context: RouteContext) {
   const body = await req.json();
 
   if (body.action === 'join') {
-    const car = joinCar(code, body.passengerName);
+    const car = await joinCar(code, body.passengerName);
     if (!car) {
       return NextResponse.json(
         { error: 'Car not found or not accepting passengers' },
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest, context: RouteContext) {
     if (!menuItem) {
       return NextResponse.json({ error: 'Menu item not found' }, { status: 400 });
     }
-    const car = addItem(code, body.passengerName, {
+    const car = await addItem(code, body.passengerName, {
       menuItemId: menuItem.id,
       name: menuItem.name,
       price: menuItem.price,
@@ -71,13 +71,13 @@ export async function POST(req: NextRequest, context: RouteContext) {
 }
 
 // PATCH /api/car/[code]
-// Body: { action: 'lock' }
+// Body: { action: 'lock' } | { action: 'ready' }
 export async function PATCH(req: NextRequest, context: RouteContext) {
   const { code } = await context.params;
   const body = await req.json();
 
   if (body.action === 'lock') {
-    const car = lockCar(code);
+    const car = await lockCar(code);
     if (!car) {
       return NextResponse.json({ error: 'Car not found' }, { status: 404 });
     }
@@ -85,7 +85,7 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
   }
 
   if (body.action === 'ready') {
-    const car = readyCar(code);
+    const car = await readyCar(code);
     if (!car) {
       return NextResponse.json({ error: 'Car not found' }, { status: 404 });
     }

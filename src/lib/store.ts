@@ -1,3 +1,5 @@
+import { kv } from '@vercel/kv';
+
 export type OrderItem = {
   menuItemId: string;
   name: string;
@@ -18,71 +20,69 @@ export type Car = {
   passengers: Passenger[];
 };
 
-// Module-level Map — persists between requests in Next.js dev mode
-const cars = new Map<string, Car>();
-
-export function generateCode(): string {
+export async function generateCode(): Promise<string> {
   let code: string;
   do {
     code = Math.floor(1000 + Math.random() * 9000).toString();
-  } while (cars.has(code));
+  } while ((await getCar(code)) !== undefined);
   return code;
 }
 
-export function createCar(code: string): Car {
+export async function createCar(code: string): Promise<Car> {
   const car: Car = {
     code,
     status: 'building',
     createdAt: Date.now(),
     passengers: [],
   };
-  cars.set(code, car);
+  await kv.set(`car:${code}`, car);
   return car;
 }
 
-export function getCar(code: string): Car | undefined {
-  return cars.get(code);
+export async function getCar(code: string): Promise<Car | undefined> {
+  const car = await kv.get<Car>(`car:${code}`);
+  return car ?? undefined;
 }
 
-export function joinCar(code: string, passengerName: string): Car | null {
-  const car = cars.get(code);
+export async function joinCar(code: string, passengerName: string): Promise<Car | null> {
+  const car = await getCar(code);
   if (!car || car.status !== 'building') return null;
-  // Avoid duplicate names — append number if needed
   const existingNames = car.passengers.map((p) => p.name);
   let name = passengerName.trim() || 'Guest';
   if (existingNames.includes(name)) {
     name = `${name} 2`;
   }
   car.passengers.push({ name, items: [] });
+  await kv.set(`car:${code}`, car);
   return car;
 }
 
-export function addItem(
+export async function addItem(
   code: string,
   passengerName: string,
   item: OrderItem
-): Car | null {
-  const car = cars.get(code);
+): Promise<Car | null> {
+  const car = await getCar(code);
   if (!car || car.status !== 'building') return null;
   const passenger = car.passengers.find((p) => p.name === passengerName);
   if (!passenger) return null;
   passenger.items.push(item);
+  await kv.set(`car:${code}`, car);
   return car;
 }
 
-export function lockCar(code: string): Car | null {
-  const car = cars.get(code);
+export async function lockCar(code: string): Promise<Car | null> {
+  const car = await getCar(code);
   if (!car) return null;
   car.status = 'preparing';
+  await kv.set(`car:${code}`, car);
   return car;
 }
 
-export function readyCar(code: string): Car | null {
-  const car = cars.get(code);
+export async function readyCar(code: string): Promise<Car | null> {
+  const car = await getCar(code);
   if (!car) return null;
   car.status = 'ready';
+  await kv.set(`car:${code}`, car);
   return car;
 }
-
-// Pre-seed a demo car so the kitchen can be opened before the demo starts
-createCar('1207');
