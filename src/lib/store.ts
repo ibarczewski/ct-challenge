@@ -1,10 +1,3 @@
-import { Redis } from '@upstash/redis';
-
-const kv = new Redis({
-  url: process.env.KV_REST_API_URL!,
-  token: process.env.KV_REST_API_TOKEN!,
-});
-
 export type OrderItem = {
   menuItemId: string;
   name: string;
@@ -25,11 +18,14 @@ export type Car = {
   passengers: Passenger[];
 };
 
+// Module-level Map — persists between requests in Next.js dev mode
+const cars = new Map<string, Car>();
+
 export async function generateCode(): Promise<string> {
   let code: string;
   do {
     code = Math.floor(1000 + Math.random() * 9000).toString();
-  } while ((await getCar(code)) !== undefined);
+  } while (cars.has(code));
   return code;
 }
 
@@ -40,17 +36,16 @@ export async function createCar(code: string): Promise<Car> {
     createdAt: Date.now(),
     passengers: [],
   };
-  await kv.set(`car:${code}`, car);
+  cars.set(code, car);
   return car;
 }
 
 export async function getCar(code: string): Promise<Car | undefined> {
-  const car = await kv.get<Car>(`car:${code}`);
-  return car ?? undefined;
+  return cars.get(code);
 }
 
 export async function joinCar(code: string, passengerName: string): Promise<Car | null> {
-  const car = await getCar(code);
+  const car = cars.get(code);
   if (!car || car.status !== 'building') return null;
   const existingNames = car.passengers.map((p) => p.name);
   let name = passengerName.trim() || 'Guest';
@@ -58,7 +53,6 @@ export async function joinCar(code: string, passengerName: string): Promise<Car 
     name = `${name} 2`;
   }
   car.passengers.push({ name, items: [] });
-  await kv.set(`car:${code}`, car);
   return car;
 }
 
@@ -67,27 +61,27 @@ export async function addItem(
   passengerName: string,
   item: OrderItem
 ): Promise<Car | null> {
-  const car = await getCar(code);
+  const car = cars.get(code);
   if (!car || car.status !== 'building') return null;
   const passenger = car.passengers.find((p) => p.name === passengerName);
   if (!passenger) return null;
   passenger.items.push(item);
-  await kv.set(`car:${code}`, car);
   return car;
 }
 
 export async function lockCar(code: string): Promise<Car | null> {
-  const car = await getCar(code);
+  const car = cars.get(code);
   if (!car) return null;
   car.status = 'preparing';
-  await kv.set(`car:${code}`, car);
   return car;
 }
 
 export async function readyCar(code: string): Promise<Car | null> {
-  const car = await getCar(code);
+  const car = cars.get(code);
   if (!car) return null;
   car.status = 'ready';
-  await kv.set(`car:${code}`, car);
   return car;
 }
+
+// Pre-seeded demo car — open /kitchen/1207 immediately on server start
+createCar('1207');
